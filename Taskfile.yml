@@ -15,3 +15,28 @@ tasks:
       DATABASE: main
       USER: sa
       PASS: P@55w0rd
+
+  db:up:
+    cmds:
+      - docker-compose up -d db
+
+  db:down:
+    cmds:
+      - docker-compose down
+
+  ef:update:
+    dir: ./TestData
+    cmds:
+      - task: db:up
+      - echo 'wait until SQL Server is up'
+      - |
+        {{if eq OS "windows"}}timeout 10{{else}}sleep 10{{end}}
+      - cmd: dotnet ef dbcontext scaffold --context MainDbContext --context-dir Data/Entities --output-dir Data/Entities {{.TABLES}} -f "Server=host.docker.internal,14331;Database={{.DATABASE}};User Id={{.USER}};Password={{.PASS}};" Microsoft.EntityFrameworkCore.SqlServer
+        ignore_error: true
+      - task: db:down
+    vars:
+      DATABASE: main
+      USER: sa
+      PASS: P@55w0rd
+      TABLES: |
+        --table dbo.Example \

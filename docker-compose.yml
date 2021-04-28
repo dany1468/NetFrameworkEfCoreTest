@@ -11,3 +11,9 @@ services:
     ports:
       - 14331:1433
     command: "sh -c '/start-up.sh & /opt/mssql/bin/sqlservr;'"
+
+  tools:
+    image: dany1468/mssql-cli-tools
+    volumes:
+      - ./dump:/tmp/dump
+    tty: true

@@ -2,11 +2,16 @@
 
 version: '3'
 
-vars:
-  GREETING: Hello, World!
-
 tasks:
-  default:
+  dacpac:
+    dir: dacpac
     cmds:
-      - echo "{{.GREETING}}"
-    silent: true
+      - docker-compose up -d tools
+      - cmd: docker-compose exec tools bash -c '/opt/sqlpackage/sqlpackage /a:Extract /scs:"Data Source=host.docker.internal,14331;Initial Catalog={{.DATABASE}};User ID={{.USER}};Password={{.PASS}};" /tf:/tmp/dump/{{.DATABASE}}.dacpac'
+        ignore_error: true
+      - docker-compose down
+
+    vars:
+      DATABASE: main
+      USER: sa
+      PASS: P@55w0rd
